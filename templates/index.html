@@ -3,77 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photo Uploader</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-        #drop-zone {
-            border: 2px dashed #cccccc;
-            border-radius: 10px;
-            padding: 20px;
-            width: 300px;
-            text-align: center;
-            cursor: pointer;
-        }
-        #drop-zone.drag-over {
-            background-color: #e8e8e8;
-        }
-        input[type="file"] {
-            display: none;
-        }
-    </style>
+    <title>GAN Image Generator</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <h1>Upload Photo</h1>
-    <form id="upload-form" action="/upload" method="POST" enctype="multipart/form-data">
-        <div id="drop-zone">Drag & Drop a Photo or Click to Upload</div>
-        <input type="file" name="photo" id="file-input">
-    </form>
+    <div class="container">
+        <div id="drop-zone">
+            <p>Drag and drop an image here</p>
+            <input type="file" id="file-input" accept="image/*" hidden>
+        </div>
+        <div id="output">
+            <h2>Generated Image:</h2>
+            <img id="generated-image" src="" alt="Generated Image">
+        </div>
+    </div>
 
     <script>
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('file-input');
-        const form = document.getElementById('upload-form');
+        const generatedImage = document.getElementById('generated-image');
 
-        dropZone.addEventListener('click', () => fileInput.click());
-
+        // Handle drag and drop
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
-            dropZone.classList.add('drag-over');
+            dropZone.classList.add('dragging');
         });
 
         dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('drag-over');
+            dropZone.classList.remove('dragging');
         });
 
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
-            dropZone.classList.remove('drag-over');
-            if (e.dataTransfer.files.length > 0) {
-                const file = e.dataTransfer.files[0];
-                const formData = new FormData();
-                formData.append('photo', file);
+            dropZone.classList.remove('dragging');
+            const file = e.dataTransfer.files[0];
+            fileInput.files = e.dataTransfer.files;
+            handleFileUpload(file);
+        });
 
-                fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.url)
-                .then(url => window.location.href = url)
-                .catch(error => console.error('Error uploading photo:', error));
+        // Handle file selection
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            handleFileUpload(file);
+        });
+
+        // Upload the file and trigger image generation
+        function handleFileUpload(file) {
+            if (!file) {
+                alert('No file selected!');
+                return;
             }
-        });
 
-        fileInput.addEventListener('change', () => {
-            form.submit();
-        });
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData,
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.generated_image_url) {
+                        generatedImage.src = data.generated_image_url;
+                    } else {
+                        alert('Error generating image.');
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    alert('Error uploading file.');
+                });
+        }
     </script>
 </body>
 </html>
