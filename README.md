@@ -3,9 +3,14 @@
 - Flask
 
 # Local Run
-Create a virtual env (mandatory): https://docs.python-guide.org/dev/virtualenvs/#virtualenvironments-ref
 
-Install Flask:
+## Windows (need to have python 3.9)
+Create a virtual env (mandatory): https://docs.python-guide.org/dev/virtualenvs/#virtualenvironments-ref
+   pip install virtualenv
+   virtualenv venv
+   .\venv\Scripts\activate
+
+Install requirements:
    pip install -r requirements.txt
 
 Run the Application:
@@ -20,7 +25,7 @@ Test the API:
 # Docker Run
 
 Build the Docker Image:
-   docker build -t flask-photo-upload .
+   docker build -t gan-app .
 
 Run the Docker Container:
    docker run -p 5000:5000 flask-photo-upload
