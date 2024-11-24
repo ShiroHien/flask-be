@@ -28,7 +28,7 @@ Build the Docker Image:
    docker build -t gan-app .
 
 Run the Docker Container:
-   docker run -p 5000:5000 flask-photo-upload
+   docker run -p 5000:5000 gan-app
    This will make the application accessible on http://localhost:5000.
 
 Test the API in Docker:
